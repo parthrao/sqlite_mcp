@@ -1,0 +1,50 @@
+# Requirements File (requirements.txt)
+fastmcp>=0.1.0
+pydantic>=2.0.0
+sqlite3  # Built into Python
+
+# Installation
+pip install -r requirements.txt
+
+# Usage Examples
+
+## 1. Starting the Server
+```bash
+python sqlite_mcp_server.py
+```
+
+## 2. Example MCP Client Integration
+
+```python
+import asyncio
+from mcp import ClientSession, StdioServerParameters
+
+async def example_usage():
+    # Connect to the SQLite MCP server
+    server_params = StdioServerParameters(
+        command="python",
+        args=["sqlite_mcp_server.py"]
+    )
+    
+    async with ClientSession(server_params) as session:
+        # Initialize the session
+        await session.initialize()
+        
+        # Example 1: Create a table
+        result = await session.call_tool("create_table", {
+            "database": "example.db",
+            "table_name": "users",
+            "columns": {
+                "id": "INTEGER PRIMARY KEY",
+                "name": "TEXT NOT NULL",
+                "email": "TEXT UNIQUE",
+                "created_at": "DATETIME DEFAULT CURRENT_TIMESTAMP"
+            }
+        })
+        print("Table creation:", result)
+        
+        # Example 2: Insert data
+        result = await session.call_tool("execute_sql", {
+            "database": "example.db",
+            "query": "INSERT INTO users (name, email) VALUES (?, ?)",
+            "params": ["John Doe", "john@
